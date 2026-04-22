@@ -50,3 +50,20 @@ class Transaction:
 ###merges all data and adds it to one function to display it
     def display_details(self):
         return f"{self.__id} | {self.__date} | {self.__amount} | {self.__description}"
+
+
+
+### sub class for all income
+class Income(Transaction):
+    def __init__(self, transaction_id, date, amount, description, source, is_taxable):
+        super().__init__(transaction_id, date, amount, description)
+
+        self.__source = source
+
+##### stores if income is taxable
+        self.__is_taxable = is_taxable
+
+
+#### outputs all income data including base class details
+    def display_details(self):
+        return super().display_details() + f" | Source: {self.__source} | Taxable: {self.__is_taxable}"
