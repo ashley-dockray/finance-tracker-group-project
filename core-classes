@@ -1,0 +1,21 @@
+from datetime import datetime
+
+# this is the base section of the program
+class Transaction:
+    def __init__(self, transaction_num, date, amount, description):
+        if transaction_num == "":
+
+            raise ValueError("ID cannot be empty")
+
+        if type(date)!= datetime:
+            raise ValueError("there is no date datetime ")
+        if amount < 0:
+            raise ValueError("There must be a positive amount ")
+        if description == "":
+            raise ValueError(" there must be a description")
+
+        self.__id = transaction_num
+        self.__date = date
+
+        self.__amount = amount
+        self.__description = description
