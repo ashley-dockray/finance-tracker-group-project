@@ -19,3 +19,34 @@ class Transaction:
 
         self.__amount = amount
         self.__description = description
+
+## getters and setters
+
+### returns the transaction number 
+    def get_id(self):
+        return self.__id
+
+### if value is not empty the function sets a new ID
+    def set_id(self, value):
+        if value != "":
+            self.__id = value
+
+    def get_amount(self):
+        return self.__amount
+
+## all functions set the amount and then the other function gets the amount
+
+    def set_amount(self, value):
+        if value >= 0:
+            self.__amount = value
+
+    def get_description(self):
+        return self.__description
+
+    def set_description(self, value):
+        if value != "":
+            self.__description = value
+
+###merges all data and adds it to one function to display it
+    def display_details(self):
+        return f"{self.__id} | {self.__date} | {self.__amount} | {self.__description}"
