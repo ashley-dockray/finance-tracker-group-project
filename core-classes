@@ -67,3 +67,24 @@ class Income(Transaction):
 #### outputs all income data including base class details
     def display_details(self):
         return super().display_details() + f" | Source: {self.__source} | Taxable: {self.__is_taxable}"
+
+### expense subclass
+class Expense(Transaction):
+    def __init__(self, transaction_num, date, amount, description, category, importance):
+        
+        super().__init__(transaction_num, date, amount, description)
+
+
+        self.__category = category
+
+#####  saves the category of the expense 
+
+        self.__importance = importance
+
+## stored and saves how important the expense is
+
+#### outputs all expense data including base class details
+    def display_details(self):
+        return super().display_details() + f" | Category: {self.__category} | Importance of expense: {self.__importance}"
+
+
