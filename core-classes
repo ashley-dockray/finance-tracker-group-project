@@ -88,3 +88,25 @@ class Expense(Transaction):
         return super().display_details() + f" | Category: {self.__category} | Importance of expense: {self.__importance}"
 
 
+#### reocurring bill subclass
+
+####makes a class for recurringbill with all frequency and next due data
+class RecurringBill(Transaction):
+
+    def __init__(self, transaction_num, date, amount, description, frequency, next_due):
+        super().__init__(transaction_num, date, amount, description)
+
+        self.__frequency = frequency
+
+
+
+## stores the next due date for the bill
+        self.__next_due = next_due
+
+
+
+### outputs all recurring bill data including base class details
+    def display_details(self):
+        return super().display_details() + f" | Frequency: {self.__frequency} | Next Due: {self.__next_due}"
+
+
