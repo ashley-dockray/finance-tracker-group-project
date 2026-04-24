@@ -1,6 +1,6 @@
 from datetime import datetime
 
-# this is the base section of the program
+#### this is the base section of the program
 class Transaction:
     def __init__(self, transaction_num, date, amount, description):
         if transaction_num == "":
@@ -52,7 +52,6 @@ class Transaction:
         return f"{self.__id} | {self.__date} | {self.__amount} | {self.__description}"
 
 
-
 ### sub class for all income
 class Income(Transaction):
     def __init__(self, transaction_id, date, amount, description, source, is_taxable):
@@ -67,6 +66,14 @@ class Income(Transaction):
 #### outputs all income data including base class details
     def display_details(self):
         return super().display_details() + f" | Source: {self.__source} | Taxable: {self.__is_taxable}"
+
+    # added getters for subclass attributes
+    def get_source(self):
+        return self.__source
+
+    def get_is_taxable(self):
+        return self.__is_taxable
+
 
 ### expense subclass
 class Expense(Transaction):
@@ -86,6 +93,13 @@ class Expense(Transaction):
 #### outputs all expense data including base class details
     def display_details(self):
         return super().display_details() + f" | Category: {self.__category} | Importance of expense: {self.__importance}"
+
+    #### getters
+    def get_category(self):
+        return self.__category
+
+    def get_importance(self):
+        return self.__importance
 
 
 #### reocurring bill subclass
@@ -109,6 +123,14 @@ class RecurringBill(Transaction):
     def display_details(self):
         return super().display_details() + f" | Frequency: {self.__frequency} | Next Due: {self.__next_due}"
 
+    #### subclass attributes using getters
+    def get_frequency(self):
+        return self.__frequency
+
+    def get_next_due(self):
+        return self.__next_due
+
+
 ### this runs and tests the transaction subclasses
-        if __name__ == "__main__":
-            print("Test running")
+if __name__ == "__main__":
+    print("Test running")
