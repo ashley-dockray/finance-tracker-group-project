@@ -100,7 +100,7 @@ class RecurringBill(Transaction):
 
 
 
-## stores the next due date for the bill
+## stores the next due dat for the bill
         self.__next_due = next_due
 
 
@@ -109,4 +109,6 @@ class RecurringBill(Transaction):
     def display_details(self):
         return super().display_details() + f" | Frequency: {self.__frequency} | Next Due: {self.__next_due}"
 
-
+### this runs and tests the transaction subclasses
+        if __name__ == "__main__":
+            print("Test running")
