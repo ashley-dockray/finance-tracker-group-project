@@ -1,24 +1,42 @@
 import json
 import core_classes
 from core_classes import Income, Expense, RecurringBill
+
 transactions = []
 
 def add_transaction():
     id = input("Enter transaction id: ")
     amount = float(input("Enter amount: "))
     description = input("Enter description: ")
-    source = input("Enter source ")
+    source = input("Enter source: ")
     taxable = input("Enter true or false for taxable or not: ")
     transaction = Income(id, datetime.now(), amount, description, source, taxable)
     transactions.append(transaction)
 
 def add_expense():
-    id = input("Enter expense id: ")
-    amount = float(input("Enter amount: "))
+    valid = False
+    while not valid:
+        try:
+            id = int(input("Enter expense id: "))
+            valid = True
+        except:
+            print("not a valid id ")
+    valid = False
+    while not valid:
+        try:
+            amount = float(input("Enter amount: "))
+            valid = True
+        except:
+            print("Not a valid amount ")
+    valid = False
     description = input("Enter description: ")
-    category = input("Enter category: ")
-    importance = input("Enter importance: ")
-
+    category = input("Enter category: ") #Income, Expense, RecurringBill, Transaction
+    while not valid:
+        importance = input("Enter importance, (need or want): ").lower()
+        if importance != "need" or "want":
+            print("Not a valid input, needs to be need or want ")
+        else:
+            valid = True
     transaction = Expense(id, datetime.now(), amount, description, category, importance)
     transactions.append(transaction)
 
@@ -26,40 +44,35 @@ def view_transactions():
     if not transactions:
         print("No transactions found.")
         return
-
     for transaction in transactions:
         print(transaction.display_details())
 
 def categorise():
     income_list = []
     expense_categories = {}
-
     for transaction in transactions:
-        t_type = type(transaction).__name__
+        transaction_type = type(transaction).__name__
 
-        if t_type == "Income":
+        if transaction_type == "Income":
             income_list.append(transaction)
 
-        elif t_type == "Expense":
+        elif transaction_type == "Expense":
             category = transaction.get_category()
 
             if category not in expense_categories:
                 expense_categories[category] = []
-
             expense_categories[category].append(transaction)
 
-    # Display Income
-    print("\n=== INCOME ===")
+    print("\nINCOME")
     if not income_list:
         print("No income recorded.")
     else:
         for transaction in income_list:
             print(transaction.display_details())
 
-    # Display Expenses by Category
-    print("\n=== EXPENSES BY CATEGORY ===")
+    print("\nEXPENSES BY CATEGORY")
     if not expense_categories:
-        print("No expenses recorded.")
+        print("No expenses ")
     else:
         for category, items in expense_categories.items():
             print(f"\nCategory: {category}")
@@ -68,11 +81,10 @@ def categorise():
 
 def save(filename="transactions.json"):
     data = []
-
     for transaction in transactions:
-        t_type = type(transaction).__name__
+        transaction_type = type(transaction).__name__
 
-        if t_type == "Income":
+        if transaction_type == "Income":
             data.append({
                 "type": "Income",
                 "id": transaction.get_id(),
@@ -83,7 +95,7 @@ def save(filename="transactions.json"):
                 "is_taxable": transaction.get_is_taxable()
             })
 
-        elif t_type == "Expense":
+        elif transaction_type == "Expense":
             data.append({
                 "type": "Expense",
                 "id": transaction.get_id(),
@@ -94,7 +106,7 @@ def save(filename="transactions.json"):
                 "importance": transaction.get_importance()
             })
 
-        elif t_type == "RecurringBill":
+        elif transaction_type == "RecurringBill":
             data.append({
                 "type": "RecurringBill",
                 "id": transaction.get_id(),
@@ -119,7 +131,6 @@ def save(filename="transactions.json"):
     
 def load(filename="transactions.json"):
     global transactions
-
     try:
         with open(filename, "r") as f:
             data = json.load(f)
