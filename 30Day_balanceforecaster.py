@@ -51,6 +51,13 @@ def forcast_over_next_30_days(): #  this runs through the next 30 days and keeps
     
     return forecast
 
+def alarm_system(forecast_list, safety_limit): # this is an alarm sytem function which compares each peice of data in the forcast list to a pre determined limmit
+    for date, balance in forecast_list: #iterates through the list
+        if balance < safety_limit: 
+            return True #returns true is the they are below the limit
+    return False 
+
+
 
 
 
