@@ -1,7 +1,6 @@
 import json
-import core_classes
-from core_classes import Income, Expense, RecurringBill
-
+from core_classes import Income, Expense, RecurringBill, Transaction
+from datetime import datetime
 transactions = []
 
 def add_transaction():
@@ -9,7 +8,8 @@ def add_transaction():
     amount = float(input("Enter amount: "))
     description = input("Enter description: ")
     source = input("Enter source: ")
-    taxable = input("Enter true or false for taxable or not: ")
+    taxable_input = input("Enter true or false for taxable or not: ").lower()
+    taxable = taxable_input == "true"
     transaction = Income(id, datetime.now(), amount, description, source, taxable)
     transactions.append(transaction)
 
@@ -30,14 +30,48 @@ def add_expense():
             print("Not a valid amount ")
     valid = False
     description = input("Enter description: ")
-    category = input("Enter category: ") #Income, Expense, RecurringBill, Transaction
+    category = input("Enter category: ")
     while not valid:
         importance = input("Enter importance, (need or want): ").lower()
-        if importance != "need" or "want":
+        if importance not in ["need", "want"]:
             print("Not a valid input, needs to be need or want ")
         else:
             valid = True
     transaction = Expense(id, datetime.now(), amount, description, category, importance)
+    transactions.append(transaction)
+
+def add_recurring_bill():
+    valid = False
+    while not valid:
+        try:
+            id = input("Enter bill id: ")
+            if id == "":
+                raise ValueError
+            valid = True
+        except:
+            print("Not a valid id")
+
+    valid = False
+    while not valid:
+        try:
+            amount = float(input("Enter amount: "))
+            if amount < 0:
+                raise ValueError
+            valid = True
+        except:
+            print("Not a valid amount")
+
+    description = input("Enter description: ")
+    frequency = input("Enter frequency: ")
+    valid = False
+    while not valid:
+        try:
+            next_due_input = input("Enter next due date (YYYY-MM-DD): ")
+            next_due = datetime.fromisoformat(next_due_input)
+            valid = True
+        except:
+            print("Invalid date format. Use YYYY-MM-DD")
+    transaction = RecurringBill(id, datetime.now(), amount, description, frequency, next_due)
     transactions.append(transaction)
 
 def view_transactions():
@@ -63,19 +97,19 @@ def categorise():
                 expense_categories[category] = []
             expense_categories[category].append(transaction)
 
-    print("\nINCOME")
+    print("INCOME")
     if not income_list:
         print("No income recorded.")
     else:
         for transaction in income_list:
             print(transaction.display_details())
 
-    print("\nEXPENSES BY CATEGORY")
+    print("EXPENSES BY CATEGORY")
     if not expense_categories:
         print("No expenses ")
     else:
         for category, items in expense_categories.items():
-            print(f"\nCategory: {category}")
+            print(f"Category: {category}")
             for transaction in items:
                 print(transaction.display_details())
 
@@ -114,7 +148,7 @@ def save(filename="transactions.json"):
                 "amount": transaction.get_amount(),
                 "description": transaction.get_description(),
                 "frequency": transaction.get_frequency(),
-                "next_due": transaction.get_next_due()
+                "next_due": transaction.get_next_due().isoformat()
             })
 
         else:
@@ -134,40 +168,51 @@ def load(filename="transactions.json"):
     try:
         with open(filename, "r") as f:
             data = json.load(f)
-
         transactions = []
-
         for transaction_data in data:
             date = datetime.fromisoformat(transaction_data["date"])
 
             if transaction_data["type"] == "Income":
-                transaction = Income(
-                    transaction_data["id"], date, transaction_data["amount"],
-                    transaction_data["description"], transaction_data["source"],
-                    transaction_data["is_taxable"]
-                )
-
+                transaction = Income(transaction_data["id"], date, transaction_data["amount"], transaction_data["description"], transaction_data["source"], transaction_data["is_taxable"])
             elif transaction_data["type"] == "Expense":
-                transaction = Expense(
-                    transaction_data["id"], date, transaction_data["amount"],
-                    transaction_data["description"], transaction_data["category"],
-                    transaction_data["importance"]
-                )
-
+                transaction = Expense(transaction_data["id"], date, transaction_data["amount"], transaction_data["description"], transaction_data["category"], transaction_data["importance"])
             elif transaction_data["type"] == "RecurringBill":
-                transaction = RecurringBill(
-                    transaction_data["id"], date, transaction_data["amount"],
-                    transaction_data["description"], transaction_data["frequency"],
-                    transaction_data["next_due"]
-                )
-
+                next_due = datetime.fromisoformat(transaction_data["next_due"])
+                transaction = RecurringBill(transaction_data["id"], date, transaction_data["amount"], transaction_data["description"], transaction_data["frequency"], next_due)
             else:
-                transaction = Transaction(
-                    transaction_data["id"], date,
-                    transaction_data["amount"], transaction_data["description"]
-                )
+                transaction = Transaction(transaction_data["id"], date, transaction_data["amount"], transaction_data["description"])
 
             transactions.append(transaction)
 
     except FileNotFoundError:
         transactions = []
+
+load()
+if __name__ == "__main__":
+    exit = False
+    while not exit:
+        print("1. Add a transaction")
+        print("2 Add an expense")
+        print("3. Categorise ")
+        print("4. view transactions ")
+        print("5. save to JSON ")
+        print("6. Add recurring bill")
+        print("7. exit")
+        choice = input("Enter numbered choice:")
+        if choice == "1":
+            add_transaction()
+        elif choice == "2":
+            add_expense()
+        elif choice == "3":
+            categorise()
+        elif choice == "4":
+            view_transactions()
+        elif choice == "5":
+            save()
+        elif choice == "6":
+            add_recurring_bill()
+        elif choice == "7":
+            print("Thank you for using the transaction manager ") 
+            exit = True
+        else:
+            print("not a valid input")
