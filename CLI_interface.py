@@ -2,6 +2,10 @@
 # FinTrack - CLI interface
 # My section(part 4): menu system, user flow, validation and spending visualisation
 
+from datetime import datetime
+from core_classes import Income, Expense
+import transaction_manager as tm
+import balance_forecaster as bf
 
 def print_fintrack_header(screen_name):
     print("\n" + "-" * 55)
@@ -18,10 +22,9 @@ def show_fintrack_menu():
     print("5. Check 30-day balance forecast")
     print("6. Show spending chart")
     print("7. Save and exit")
-
+# menu choice function thats validates user input 
 def get_fintrack_menu_choice():
     valid_choices = ["1", "2", "3", "4", "5", "6", "7"]
-
     while True:
         user_choice = input("\nChoose an option from 1 to 7: ").strip()
         if user_choice in valid_choices:
@@ -39,7 +42,7 @@ def get_text_input(prompt, error_message):
             return user_input
         print(error_message)
 
-
+# money input function ensuring that valid number amounts and is positive.
 def get_money_input(prompt):
     while True:
         user_input = input(prompt).strip()
@@ -52,7 +55,7 @@ def get_money_input(prompt):
         except ValueError:
             print("Please type a number like 12.50.")
 
-
+# yes or no function - boolean values 
 def get_yes_or_no(prompt):
     while True:
         answer = input(prompt).strip().lower()
@@ -75,69 +78,119 @@ def get_importance_level():
 # screen / UI functions
 def open_all_transactions_screen():
     print_fintrack_header("All Transactions")
-    print("This page will show all income and expense records in one place.")
-    print("This will show the saved income and expenses once it is linked up.")
+    transactions = tm.view_transactions()
+    if not transactions:
+        print("No transactions have been saved yet.")
+    else:
+        for transaction in transactions:
+            print(transaction.display_details())
     return_to_menu()
 
-
+#total amount in each category 
 def open_category_summary_screen():
     print_fintrack_header("Spending by Category")
-    print("This page will group expenses into categories so the user can see where money is going.")
-    print("The final version will use the real expense data from the transaction manager.")
+    transactions = tm.view_transactions()
+    if not transactions:
+        print("No transactions have been saved yet.")
+        return_to_menu()
+        return
+    
+    category_totals = {}
+    for transaction in transactions:
+        if isinstance(transaction, Expense):
+            category = transaction.get_category()
+            amount = transaction.get_amount()
+            if category not in category_totals:
+                category_totals[category] = 0
+            category_totals[category] += amount
+
+    if not category_totals:
+        print("No expenses have been recorded yet.")
+    else:
+        print("Total spending by category:\n")
+        for category, total in category_totals.items():
+            print(f"{category:12} | £{total:.2f}")
     return_to_menu()
 
-
+# forecast of next 30 days based on past and current transactions 
 def open_forecast_screen():
     print_fintrack_header("30-Day Forecast")
-    print("This page will show whether the user is likely to stay financially safe over the next month.")
-    print("The final version will use recurring bills and the balance forecast logic.")
+    forecast = bf.forcast_over_next_30_days()
+
+    if forecast is None or not forecast:
+        print("No forecast data available.")
+    else:
+        for date, balance in forecast:
+            print(f"{date} | £{balance:.2f}")
     return_to_menu()
 
 # simple text-based bar chart that gives a quick visual summary of the user's spending across different categories. 
 def open_spending_chart_screen():
     print_fintrack_header("Spending Chart")
 
-    # Temporary test data so the interface can be tested before backend integration.
-    example_spending = {
-        "Food": 120,
-        "Travel": 60,
-        "Shopping": 35,
-        "Bills": 180,
-        "Social": 75
-    }
-    print("Quick visual summary of spending:\n")
-    
-    for category, amount in example_spending.items():
-        bar_length = int(amount / 10)
-        spending_bar = "#" * bar_length
-        print(f"{category:12} | {spending_bar:<20} £{amount:.2f}")
-    print("\nEach # represents roughly £10.")
+    transactions = tm.view_transactions()
+    category_totals = {}
+
+    for transaction in transactions:
+        if type(transaction).__name__ == "Expense":
+            category = transaction.get_category()
+            amount = transaction.get_amount()
+            if category not in category_totals:
+                category_totals[category] = 0
+            category_totals[category] += amount
+
+    if not category_totals:
+        print("No expense data available for the spending chart.")
+    else:
+        print("Spending by category:\n")
+        for category, total in category_totals.items():
+            bar_length = int(total / 10)
+            if bar_length == 0:
+                bar_length = 1
+            spending_bar = "*" * bar_length
+            print(f"{category:12} | {spending_bar:<20} £{total:.2f}")
+        print("\nEach * represents roughly £10.")
     return_to_menu()
 
 # The open_income_screen and open_expense_screen functions will have more detailed prompts and validation to ensure the user enters the correct information. They will also print a summary of the recorded transaction before returning to the menu.
 def open_income_screen():
     print_fintrack_header("Add Income")
+
+    transaction_id = get_text_input(
+        "Enter income ID: ",
+        "Income ID cannot be empty. Example: INC001."
+    )
+
     description = get_text_input(
         "Enter income description: ",
         "Description cannot be empty. Example: wages, student loan."
     )
+
     amount = get_money_input("Enter income amount: £")
     source = get_text_input(
         "Enter income source: ",
         "Source cannot be empty. Example: job, loan, family."
     )
+
     taxable = get_yes_or_no("Is this income taxable? (yes/no): ")
-    print("\nIncome recorded successfully.")
-    print(f"{description} | £{amount:.2f} | {source} | Taxable: {taxable}")
+    income = Income(transaction_id, datetime.now(), amount, description, source, taxable)
+    tm.transactions.append(income)
+    tm.save()
+    print("\nIncome saved successfully.")
+    print(f"{transaction_id} | {description} | £{amount:.2f} | {source} | Taxable: {taxable}")
     return_to_menu()
 
+# expense details 
 def open_expense_screen():
     print_fintrack_header("Add Expense")
+    transaction_id = get_text_input(
+        "Enter expense ID: ",
+        "Expense ID cannot be empty. Example: EXP001."
+    )
     description = get_text_input(
         "Enter expense description: ",
         "Description cannot be empty. Example: food shop, rent, gym."
     )
-
     amount = get_money_input("Enter expense amount: £")
     category = get_text_input(
         "Enter category (e.g. Food, Travel, Bills): ",
@@ -145,12 +198,16 @@ def open_expense_screen():
     )
 
     importance = get_importance_level()
-    print("\nExpense recorded successfully.")
-    print(f"{description} | £{amount:.2f} | {category} | Importance: {importance}")
+    expense = Expense(transaction_id, datetime.now(), amount, description, category, importance)
+    tm.transactions.append(expense)
+    tm.save()
+    print("\nExpense saved successfully.")
+    print(f"{transaction_id} | {description} | £{amount:.2f} | {category} | Importance: {importance}")
     return_to_menu()
 
 # main loop of the application, showing the menu and responding to user choices until they choose to exit. 
 def run_fintrack_interface():
+    tm.load()
     app_is_running = True
 
     while app_is_running:
@@ -169,12 +226,11 @@ def run_fintrack_interface():
         elif user_choice == "6":
             open_spending_chart_screen()
         elif user_choice == "7":
-            print_fintrack_header("Exit")
-            print("FinTrack is closing now.")
-            print("Final version will save the latest data before exiting.")
-            print("Goodbye.")
-            app_is_running = False
-
+                print_fintrack_header("Exit")
+                tm.save()
+                print("Latest FinTrack data has been saved.")
+                print("Goodbye.")
+                app_is_running = False
 if __name__ == "__main__":
     run_fintrack_interface()
 
