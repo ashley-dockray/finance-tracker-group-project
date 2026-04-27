@@ -3,11 +3,13 @@
 # also in the needs vs wants report change (importance = data.get_importance()) to (importance = data.get_importance().lower()) because my interface stores it as Need/Want.
 import json
 from datetime import datetime, timedelta
-from transaction_manager import transactions
+#from transaction_manager import transactions
+#this would be removed for:
+import transaction_manager as tm 
 from core_classes import Income, Expense, RecurringBill
 
 def Bill_filter(): # this filteres the dat to make sure we get only the bills from the saved data
-    jason_file_data = transactions
+    jason_file_data = tm.transactions # tm will be added to each 'transactions' 
     filtered_data = []
 
     current_date = datetime.now().date() # we use the date as one form of filtering the data, ensuring all the bills are in date
@@ -24,7 +26,7 @@ def Bill_filter(): # this filteres the dat to make sure we get only the bills fr
     return filtered_data
 
 def balance_calculator(): # knowing the current ballance is important so this function works it out based on expenses and income
-    jason_file_data = transactions
+    jason_file_data = tm.transactions
     balance= 0 
     for data in jason_file_data: # this for loop checks if the data is income or expense and decides weather or not to add or subtract the money from the ballance
         if isinstance(data, Income):
@@ -61,14 +63,14 @@ def alarm_system(forecast_list, safety_limit): # this is an alarm sytem function
     return False 
 
 def needs_vs_wants_report(): # this function returns a report on the relationship between the needed and wanted expenses
-    jason_file_data = transactions
+    jason_file_data = tm.transactions
     needs = []
     needs_count = 0
     wants = []
     wants_count = 0
     for data  in jason_file_data: 
         if isinstance(data, Expense): # it itterates through each bit of data and ignores anything which isnt an expense 
-            importance = data.get_importance()
+            importance = data.get_importance().lower() # lower added
             if importance == "need": # it seperates the needs and the wants keeping a running tally of the overall spendage
                 needs.append(data)
                 needs_count  += data.get_amount()
