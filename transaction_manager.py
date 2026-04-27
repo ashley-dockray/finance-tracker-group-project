@@ -5,7 +5,6 @@ from datetime import datetime
 #transactions stored as a list, made as a constant at the top of the code
 transactions = []
 
-#function for adding transactions, all of the inputs get the necessary data from the user to store
 def add_income():
     valid = False
     #my code uses the same sort of error handling throughout, I set valid equal to False and do a while loop to ensure that it keeps asking the user for an answer even if they input the wrong data type
@@ -41,7 +40,6 @@ def add_income():
     transactions.append(transaction) #adds all of the inputs into the transactions list
     print("transaction added ")
 
-#function for adding expenses, uses same error handling for inputs
 def add_expense():
     valid = False
     while not valid:
@@ -78,12 +76,12 @@ def add_recurring_bill():
     valid = False
     while not valid:
         try:
-            id = input("Enter bill id: ")
-            if id == "":
+            id = int(input("Enter bill id: "))
+            if id <= 0: 
                 raise ValueError
             valid = True
-        except:
-            print("Not a valid id ")
+        except ValueError:
+            print("not a valid id ")
 
     valid = False
     while not valid:
@@ -101,13 +99,14 @@ def add_recurring_bill():
     while not valid:
         try:
             next_due_input = input("Enter next due date (YYYY-MM-DD): ")
-            next_due = datetime.fromisoformat(next_due_input)
+            next_due = datetime.fromisoformat(next_due_input) #fromisoformat ensures its converted into YYYY-MM-DD, which is ISO format, and if its not it wont accept it
             valid = True
         except:
             print("Invalid date format, Use YYYY-MM-DD ")
-    transaction = RecurringBill(id, datetime.now(), amount, description, frequency, next_due)
+    transaction = RecurringBill(id, datetime.now(), amount, description, frequency, next_due) #calls RecuringBill from OOP
     transactions.append(transaction)
 
+# extra code that needed to be changed for the UI section
 # def view_transactions():
 #     if not transactions:
 #         print("No transactions found.")
@@ -119,47 +118,45 @@ def view_transactions():
     return transactions 
     
 def categorise():
-    income_list = []
-    expense_categories = {}
-    for transaction in transactions:
-        transaction_type = type(transaction).__name__
-
+    income_list = [] #list of income objects
+    expense_categories = {} #dictionary of categories
+    for transaction in transactions: #goes through each transaction one by one
+        transaction_type = type(transaction).__name__ #gets the class name to compare in if statements
         if transaction_type == "Income":
-            income_list.append(transaction)
-
+            income_list.append(transaction) #adds all income objects into a list
         elif transaction_type == "Expense":
-            category = transaction.get_category()
-
+            category = transaction.get_category() #uses get_category from OOP to get the category type
             if category not in expense_categories:
                 expense_categories[category] = []
             expense_categories[category].append(transaction)
 
-    print("INCOME")
+    print("INCOME") #acts as a heading, same with the other print
     if not income_list:
-        print("No income recorded ")
+        print("No income recorded ") #in case no incomes exist prints this to user
     else:
         for transaction in income_list:
             print(transaction.display_details())
 
     print("EXPENSES BY CATEGORY")
     if not expense_categories:
-        print("No expenses ")
+        print("No expenses ") #in case no expenses exist prints no expenses
     else:
-        for category, items in expense_categories.items():
-            print(f"Category: {category}")
+        for category, items in expense_categories.items(): #loops through dictionary 
+            print(f"Category: {category}") #prints each category one by one when looping
             for transaction in items:
-                print(transaction.display_details())
+                print(transaction.display_details()) #then prints the item details
 
 def save(filename="transactions.json"):
-    data = []
+    data = [] #used to store the list of dictionaries about to be made
     for transaction in transactions:
-        transaction_type = type(transaction).__name__
-
+        transaction_type = type(transaction).__name__ #gets the transaction type in order to compared
+        #since JSON cant store objects, each of the different transaction types need to be converted into dictionaries
+        #so the code below checks the type of transaction, then gets each bit of information and converts it into a dictionary format
         if transaction_type == "Income":
             data.append({
                 "type": "Income",
                 "id": transaction.get_id(),
-                "date": transaction._Transaction__date.isoformat(),
+                "date": transaction._Transaction__date.isoformat(), #isoformat makes sure that all of the dates are strings instead of objects so they can actually be stored
                 "amount": transaction.get_amount(),
                 "description": transaction.get_description(),
                 "source": transaction.get_source(),
@@ -197,15 +194,16 @@ def save(filename="transactions.json"):
                 "description": transaction.get_description()
             })
 
-    with open(filename, "w") as f:
-        json.dump(data, f, indent=4)
+    with open(filename, "w") as f: #opens the transactions.json file in write mode
+        json.dump(data, f, indent=4) #writes all of the data into the file, with an indent to make it more readable
     
 def load(filename="transactions.json"):
-    global transactions
+    global transactions #makes transactions a global variable so it is being modified inside this function and needs to be used outside of it
     try:
-        with open(filename, "r") as f:
-            data = json.load(f)
-        transactions = []
+        with open(filename, "r") as f: #opens the file in read mode
+            data = json.load(f) #loads the transaction data and converts it into a list of dictionaries from json
+        transactions = [] #resets the transactions list so any old data is deleted
+        #all of this code just converts all of the strings back into objects for the OOP to work, by retrieving all of the information in each class
         for transaction_data in data:
             date = datetime.fromisoformat(transaction_data["date"])
 
@@ -219,37 +217,38 @@ def load(filename="transactions.json"):
             else:
                 transaction = Transaction(transaction_data["id"], date, transaction_data["amount"], transaction_data["description"])
 
-            transactions.append(transaction)
+            transactions.append(transaction) #adds all of the converted data into the transactions list again
 
-    except FileNotFoundError:
+    except FileNotFoundError: #used in case the filename isnt found, just resets transactions
         transactions = []
 
-load()
-if __name__ == "__main__":
-    exit = False
-    while not exit:
-        print("1. Add an income ")
-        print("2 Add an expense ")
-        print("3. Categorise ")
-        print("4. view transactions ")
-        print("5. save to JSON ")
-        print("6. Add recurring bill")
-        print("7. exit ")
-        choice = input("Enter numbered choice: ")
-        if choice == "1":
-            add_income()
-        elif choice == "2":
-            add_expense()
-        elif choice == "3":
-            categorise()
-        elif choice == "4":
-            view_transactions()
-        elif choice == "5":
-            save()
-        elif choice == "6":
-            add_recurring_bill()
-        elif choice == "7":
-            print("Thank you for using the transaction manager ") 
-            exit = True
-        else:
-            print("not a valid input")
+#own menu for testing my functions
+#load()
+#if __name__ == "__main__":
+#    exit = False
+#    while not exit:
+#        print("1. Add an income ")
+#        print("2 Add an expense ")
+#        print("3. Categorise ")
+#        print("4. view transactions ")
+#        print("5. save to JSON ")
+#        print("6. Add recurring bill")
+#        print("7. exit ")
+#        choice = input("Enter numbered choice: ")
+#        if choice == "1":
+#            add_income()
+#        elif choice == "2":
+#            add_expense()
+#        elif choice == "3":
+#            categorise()
+#        elif choice == "4":
+#            view_transactions()
+#        elif choice == "5":
+#            save()
+#        elif choice == "6":
+#            add_recurring_bill()
+#        elif choice == "7":
+#            print("Thank you for using the transaction manager ") 
+#            exit = True
+#        else:
+#            print("not a valid input")
