@@ -1,3 +1,6 @@
+# few changes - import trasnaction_manager as tm rather than current (from transaction_manager import transactions) 
+# and use tm.trasnactions anywhere you use transactions 
+# also in the needs vs wants report change (importance = data.get_importance()) to (importance = data.get_importance().lower()) because my interface stores it as Need/Want.
 import json
 from datetime import datetime, timedelta
 from transaction_manager import transactions
