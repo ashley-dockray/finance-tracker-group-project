@@ -27,12 +27,12 @@ def show_fintrack_menu():
     print("10. Save and exit")
 # menu choice function thats validates user input 
 def get_fintrack_menu_choice():
-    valid_choices = ["1", "2", "3", "4", "5", "6", "7"]
+    valid_choices = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
     while True:
-        user_choice = input("\nChoose an option from 1 to 7: ").strip()
+        user_choice = input("\nChoose an option from 1 to 10: ").strip()
         if user_choice in valid_choices:
             return user_choice
-        print("That option is not on the menu. Please enter a number from 1 to 7.")
+        print("That option is not on the menu. Please enter a number from 1 to 10.")
 
 def return_to_menu():
     input("\nPress Enter when you are ready to go back to the main menu...")
@@ -77,7 +77,7 @@ def get_importance_level():
         elif level in ["want", "w"]:
             return "Want"
         print("Please enter 'Need' or 'Want'.")
-
+# It will return a list of dates and corresponding balances, which can be used to identify potential cash flow issues in advance.
 def open_recurring_bill_screen():
     print_fintrack_header("Add Recurring Bill")
 
@@ -103,7 +103,8 @@ def open_recurring_bill_screen():
 
     print("Recurring bill added.")
     return_to_menu()
-
+    
+# This report will calculate the total amount spent on needs and wants, and the percentage of total expenses that each category represents.
 def open_needs_wants_screen():
     print_fintrack_header("Needs vs Wants Report")
 
@@ -115,7 +116,7 @@ def open_needs_wants_screen():
     print(f"Wants %: {report['wants_percentage']:.1f}%")
 
     return_to_menu()
-
+# This function will use the 30-day forecast to check if the user's balance is projected to drop below a certain threshold, which they can set as a "safety limit".
 def open_budget_alert_screen():
     print_fintrack_header("Budget Alert")
 
