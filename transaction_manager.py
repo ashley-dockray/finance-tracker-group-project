@@ -1,3 +1,5 @@
+#few changes - in order for the view transactions fucntion to work with my interface make it just return transactions 
+
 import json
 from core_classes import Income, Expense, RecurringBill, Transaction
 from datetime import datetime
