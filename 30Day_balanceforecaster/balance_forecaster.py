@@ -18,7 +18,9 @@ def Bill_filter(): # this filteres the dat to make sure we get only the bills fr
     for data in jason_file_data: 
         if isinstance(data, RecurringBill): #checks if the object is a recurring bill
             next_due = data.get_next_due()
-            if isinstance(next_due, datetime): # this gets the next due date and converts it into an actual date format
+            if isinstance(next_due, str): #checks if the next_due is a string
+                next_due = datetime.fromisoformat(next_due).date()# if its a string it converts it to a date format 
+            elif isinstance(next_due, datetime): 
                 next_due = next_due.date()
             if current_date <= next_due <= due_date:#this checks that the date is within the next 30 days
                 filtered_data.append(data)
@@ -29,7 +31,7 @@ def balance_calculator(): # knowing the current ballance is important so this fu
     jason_file_data = tm.transactions
     balance= 0 
     for data in jason_file_data: # this for loop checks if the data is income or expense and decides weather or not to add or subtract the money from the ballance
-        if isinstance(data, Income):
+        if isinstance(data, Income): 
             balance += data.get_amount()
         elif isinstance(data, Expense):
             balance -= data.get_amount()
@@ -85,6 +87,13 @@ def needs_vs_wants_report(): # this function returns a report on the relationshi
     else:
         needs_percent = wants_percent = 0
     return {"needs_list": needs, "wants_list": wants, "needs_total": needs_count, "wants_total": wants_count, "needs_percentage": needs_percent, "wants_percentage": wants_percent}
+        
+
+
+
+
+
+    
         
 
 
