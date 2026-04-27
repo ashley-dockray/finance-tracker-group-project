@@ -1,5 +1,6 @@
 #few changes - in order for the view transactions fucntion to work with my interface make it just return transactions 
 
+
 import json
 from core_classes import Income, Expense, RecurringBill, Transaction
 from datetime import datetime
@@ -76,13 +77,16 @@ def add_recurring_bill():
     transaction = RecurringBill(id, datetime.now(), amount, description, frequency, next_due)
     transactions.append(transaction)
 
-def view_transactions():
-    if not transactions:
-        print("No transactions found.")
-        return
-    for transaction in transactions:
-        print(transaction.display_details())
-
+# def view_transactions():
+#     if not transactions:
+#         print("No transactions found.")
+#         return
+#     for transaction in transactions:
+#         print(transaction.display_details())
+# so this would be removed for: 
+def view_transactions(): 
+    return transactions 
+    
 def categorise():
     income_list = []
     expense_categories = {}
