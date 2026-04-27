@@ -21,7 +21,10 @@ def show_fintrack_menu():
     print("4. View spending grouped by category")
     print("5. Check 30-day balance forecast")
     print("6. Show spending chart")
-    print("7. Save and exit")
+    print("7. Add recurring bill")              
+    print("8. Needs vs Wants report")          
+    print("9. Budget alert check") 
+    print("10. Save and exit")
 # menu choice function thats validates user input 
 def get_fintrack_menu_choice():
     valid_choices = ["1", "2", "3", "4", "5", "6", "7"]
@@ -74,6 +77,60 @@ def get_importance_level():
         elif level in ["want", "w"]:
             return "Want"
         print("Please enter 'Need' or 'Want'.")
+
+def open_recurring_bill_screen():
+    print_fintrack_header("Add Recurring Bill")
+
+    transaction_id = get_text_input("Enter bill ID: ", "ID cannot be empty.")
+    description = get_text_input("Enter description: ", "Cannot be empty.")
+    amount = get_money_input("Enter amount: £")
+    frequency = get_text_input("Enter frequency: ", "Cannot be empty.")
+
+    next_due_input = get_text_input("Enter next due date (YYYY-MM-DD): ", "Invalid date.")
+
+    try:
+        next_due = datetime.fromisoformat(next_due_input)
+    except:
+        print("Invalid date format.")
+        return_to_menu()
+        return
+
+    from core_classes import RecurringBill
+    bill = RecurringBill(transaction_id, datetime.now(), amount, description, frequency, next_due)
+
+    tm.transactions.append(bill)
+    tm.save()
+
+    print("Recurring bill added.")
+    return_to_menu()
+
+def open_needs_wants_screen():
+    print_fintrack_header("Needs vs Wants Report")
+
+    report = bf.needs_vs_wants_report()
+
+    print(f"Needs total: £{report['needs_total']:.2f}")
+    print(f"Wants total: £{report['wants_total']:.2f}")
+    print(f"Needs %: {report['needs_percentage']:.1f}%")
+    print(f"Wants %: {report['wants_percentage']:.1f}%")
+
+    return_to_menu()
+
+def open_budget_alert_screen():
+    print_fintrack_header("Budget Alert")
+
+    forecast = bf.forcast_over_next_30_days()
+
+    safety_limit = get_money_input("Enter minimum safe balance: £")
+
+    alert = bf.alarm_system(forecast, safety_limit)
+
+    if alert:
+        print("WARNING: Your balance may drop below your limit.")
+    else:
+        print("Your balance looks safe.")
+
+    return_to_menu()
 
 # screen / UI functions
 def open_all_transactions_screen():
@@ -226,6 +283,12 @@ def run_fintrack_interface():
         elif user_choice == "6":
             open_spending_chart_screen()
         elif user_choice == "7":
+            open_recurring_bill_screen()
+        elif user_choice == "8":
+            open_needs_wants_screen()
+        elif user_choice == "9":
+            open_budget_alert_screen()
+        elif user_choice == "10":
                 print_fintrack_header("Exit")
                 tm.save()
                 print("Latest FinTrack data has been saved.")
