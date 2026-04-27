@@ -1,47 +1,78 @@
-#few changes - in order for the view transactions fucntion to work with my interface make it just return transactions 
-
-
+#import libraries like json for saving and loading, datetime and linking to the OOP file
 import json
 from core_classes import Income, Expense, RecurringBill, Transaction
 from datetime import datetime
+#transactions stored as a list, made as a constant at the top of the code
 transactions = []
 
-def add_transaction():
-    id = input("Enter transaction id: ")
-    amount = float(input("Enter amount: "))
+#function for adding transactions, all of the inputs get the necessary data from the user to store
+def add_income():
+    valid = False
+    #my code uses the same sort of error handling throughout, I set valid equal to False and do a while loop to ensure that it keeps asking the user for an answer even if they input the wrong data type
+    valid = False
+    while not valid:
+        try:
+            transaction_id = int(input("Enter transaction id: ")) #converts input to an integer using int, if it fails, try and except block prevents it from crashing
+            if transaction_id <= 0: #makes sure the user enters an id above zero, otherwise raises an error
+                raise ValueError
+            valid = True #breaks the while loop
+        except ValueError: #if a value error is raised then it will run the code below and restart the loop
+            print("Not a valid id ")
+    valid = False
+    while not valid:
+        try:
+            amount = float(input("Enter amount: ")) #amount must be a float
+            if amount < 0: #amount must be greater than zero
+                raise ValueError
+            valid = True
+        except ValueError:
+            print("Not a valid amount ")
     description = input("Enter description: ")
     source = input("Enter source: ")
-    taxable_input = input("Enter true or false for taxable or not: ").lower()
-    taxable = taxable_input == "true"
-    transaction = Income(id, datetime.now(), amount, description, source, taxable)
-    transactions.append(transaction)
+    valid = False
+    while not valid:
+        taxable_input = input("is it taxable (enter true or false): ").lower() #converts users answer to lowercase
+        if taxable_input in ["true", "false"]: #checks if the user inputted true or false
+            taxable = taxable_input == "true" #converts it to a boolean by a comparison if they enter True as it will be true, and false if they entered false
+            valid = True
+        else:
+            print("Please enter true or false ")
+    transaction = Income(transaction_id, datetime.now(), amount, description, source, taxable) #calls Income class from the OOP core classes
+    transactions.append(transaction) #adds all of the inputs into the transactions list
+    print("transaction added ")
 
+#function for adding expenses, uses same error handling for inputs
 def add_expense():
     valid = False
     while not valid:
         try:
             id = int(input("Enter expense id: "))
+            if id <= 0: #makes sure the user enters an id above zero, otherwise raises an error
+                raise ValueError
             valid = True
-        except:
+        except ValueError:
             print("not a valid id ")
     valid = False
     while not valid:
         try:
             amount = float(input("Enter amount: "))
+            if amount < 0: 
+                raise ValueError
             valid = True
-        except:
+        except ValueError:
             print("Not a valid amount ")
     valid = False
     description = input("Enter description: ")
     category = input("Enter category: ")
     while not valid:
         importance = input("Enter importance, (need or want): ").lower()
-        if importance not in ["need", "want"]:
-            print("Not a valid input, needs to be need or want ")
+        if importance not in ["need", "want"]: #same idea as with the taxable input, checks if the user inputted need or want and doesnt accept anything else
+            print("Not a valid input, has to be either need or want ")
         else:
             valid = True
-    transaction = Expense(id, datetime.now(), amount, description, category, importance)
-    transactions.append(transaction)
+    transaction = Expense(id, datetime.now(), amount, description, category, importance) #calls Expense class from the OOP core classes
+    transactions.append(transaction) #adds the inputs into the list with other transactions
+    print("expense added ")
 
 def add_recurring_bill():
     valid = False
@@ -52,7 +83,7 @@ def add_recurring_bill():
                 raise ValueError
             valid = True
         except:
-            print("Not a valid id")
+            print("Not a valid id ")
 
     valid = False
     while not valid:
@@ -62,7 +93,7 @@ def add_recurring_bill():
                 raise ValueError
             valid = True
         except:
-            print("Not a valid amount")
+            print("Not a valid amount ")
 
     description = input("Enter description: ")
     frequency = input("Enter frequency: ")
@@ -73,7 +104,7 @@ def add_recurring_bill():
             next_due = datetime.fromisoformat(next_due_input)
             valid = True
         except:
-            print("Invalid date format. Use YYYY-MM-DD")
+            print("Invalid date format, Use YYYY-MM-DD ")
     transaction = RecurringBill(id, datetime.now(), amount, description, frequency, next_due)
     transactions.append(transaction)
 
@@ -105,7 +136,7 @@ def categorise():
 
     print("INCOME")
     if not income_list:
-        print("No income recorded.")
+        print("No income recorded ")
     else:
         for transaction in income_list:
             print(transaction.display_details())
@@ -197,16 +228,16 @@ load()
 if __name__ == "__main__":
     exit = False
     while not exit:
-        print("1. Add a transaction")
-        print("2 Add an expense")
+        print("1. Add an income ")
+        print("2 Add an expense ")
         print("3. Categorise ")
         print("4. view transactions ")
         print("5. save to JSON ")
         print("6. Add recurring bill")
-        print("7. exit")
-        choice = input("Enter numbered choice:")
+        print("7. exit ")
+        choice = input("Enter numbered choice: ")
         if choice == "1":
-            add_transaction()
+            add_income()
         elif choice == "2":
             add_expense()
         elif choice == "3":
