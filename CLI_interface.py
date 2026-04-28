@@ -80,28 +80,9 @@ def get_importance_level():
 # It will return a list of dates and corresponding balances, which can be used to identify potential cash flow issues in advance.
 def open_recurring_bill_screen():
     print_fintrack_header("Add Recurring Bill")
-
-    transaction_id = get_text_input("Enter bill ID: ", "ID cannot be empty.")
-    description = get_text_input("Enter description: ", "Cannot be empty.")
-    amount = get_money_input("Enter amount: £")
-    frequency = get_text_input("Enter frequency: ", "Cannot be empty.")
-
-    next_due_input = get_text_input("Enter next due date (YYYY-MM-DD): ", "Invalid date.")
-
-    try:
-        next_due = datetime.fromisoformat(next_due_input)
-    except:
-        print("Invalid date format.")
-        return_to_menu()
-        return
-
-    from core_classes import RecurringBill
-    bill = RecurringBill(transaction_id, datetime.now(), amount, description, frequency, next_due)
-
-    tm.transactions.append(bill)
+    tm.add_recurring_bill()
     tm.save()
-
-    print("Recurring bill added.")
+    print("Recurring bill saved.")
     return_to_menu()
     
 # This report will calculate the total amount spent on needs and wants, and the percentage of total expenses that each category represents.
