@@ -58,11 +58,18 @@ def forcast_over_next_30_days(): #  this runs through the next 30 days and keeps
     
     return forecast
 
-def alarm_system(forecast_list, safety_limit): # this is an alarm sytem function which compares each peice of data in the forcast list to a pre determined limmit
-    for date, balance in forecast_list: # iterates through a list
-        if balance < safety_limit:
-            return True # returns true if they are below the limit
-    return False 
+def alarm_system(new_expense, budgets): #this is an alert system which checks if the expene will go over a designated budget
+    category = new_expense.get_category().lower() #it gets the category and amount of th inputed expense
+    amount = new_expense.get_amount()
+    if category not in budgets: #checks if a budget for the expense exists
+        return False
+    current_total = 0
+    for data in tm.transactions: # iterates through every stored transaction
+        if isinstance(data, Expense): #ignores everything but expenses
+            if data.get_category().lower() == category: 
+                current_total += data.get_amount() 
+    new_total = current_total + amount
+    return new_total > budgets[category] 
 
 def needs_vs_wants_report(): # this function returns a report on the relationship between the needed and wanted expenses
     jason_file_data = tm.transactions
