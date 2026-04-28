@@ -1,5 +1,5 @@
 # FinTrack - Personal Finance & Budget Forecaster
-A command-line budgeting application built in Python for CIS1703 Programming 2, Group Project.
+A command-line budgeting application built in Python for CIS1703 Programming 2 Group Project.
 
 ## Requirements
 - Python 3.10 or above
@@ -14,20 +14,22 @@ A command-line budgeting application built in Python for CIS1703 Programming 2, 
 
 ## File Structure
 - CLI_interface.py        - Main entry point, run this to start the app
-- core_classes.py         - Base Transaction class and all subclasses
+- core_classes.py         - Base Transaction class and all subclasses (Income, Expense, RecurringBill)
 - transaction_manager.py  - Handles saving, loading and managing transactions
-- 30Day_balanceforecaster/
-  balance_forecaster.py   - 30-day forecast, budget alerts and needs vs wants report
+- balance_forecaster.py   - 30-day forecast, budget alerts and needs vs wants report
 - transactions.json       - Created automatically when you first save data
 
 ## How to Use
-- Option 1: Add a new income
-- Option 2: Add a new expense
-- Option 3: View all recorded transactions
-- Option 4: View spending grouped by category
-- Option 5: Check 30-day balance forecast
-- Option 6: View spending chart
-- Option 7: Save and exit
+- Option 1:  Add a new income
+- Option 2:  Add a new expense
+- Option 3:  View all recorded transactions
+- Option 4:  View spending grouped by category
+- Option 5:  Check 30-day balance forecast
+- Option 6:  Show spending chart
+- Option 7:  Add a recurring bill
+- Option 8:  Needs vs Wants report
+- Option 9:  Budget alert check
+- Option 10: Save and exit
 
 ## Notes
 - Data is saved automatically when adding transactions and on exit
