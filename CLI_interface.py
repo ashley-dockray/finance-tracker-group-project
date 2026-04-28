@@ -99,19 +99,26 @@ def open_needs_wants_screen():
     return_to_menu()
 # This function will use the 30-day forecast to check if the user's balance is projected to drop below a certain threshold, which they can set as a "safety limit".
 def open_budget_alert_screen():
-    print_fintrack_header("Budget Alert")
-
-    forecast = bf.forcast_over_next_30_days()
-
-    safety_limit = get_money_input("Enter minimum safe balance: £")
-
-    alert = bf.alarm_system(forecast, safety_limit)
-
+    print_fintrack_header("Budget Alert Check")
+    description = get_text_input(
+        "Enter expense description: ",
+        "Description cannot be empty."
+    )
+    amount = get_money_input("Enter expense amount: £")
+    category = get_text_input(
+        "Enter expense category: ",
+        "Category cannot be empty."
+    )
+    budget_limit = get_money_input(
+        f"Enter budget limit for {category}: £"
+    )
+    test_expense = Expense("TEMP", datetime.now(), amount, description, category, "Need")
+    budgets = {category.lower(): budget_limit}
+    alert = bf.alarm_system(test_expense, budgets)
     if alert:
-        print("WARNING: Your balance may drop below your limit.")
+        print("Budget warning: this expense would take you over your category budget.")
     else:
-        print("Your balance looks safe.")
-
+        print("This expense is within your category budget.")
     return_to_menu()
 
 # screen / UI functions
